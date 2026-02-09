@@ -3,6 +3,12 @@ from config import app, db
 from model import Contact
 from sqlalchemy.exc import IntegrityError
 
+def validate_contact_data(data):
+    required_fields = ("firstName", "lastName", "email")
+    if not all(field in data for field in required_fields):
+        return jsonify({"message": "Missing required fields"}), 400
+    return True
+
 
 @app.route("/", methods=["GET"])
 def test_server():
@@ -17,12 +23,8 @@ def contacts():
 
     # POST
     data = request.get_json()
-    if not data:
+    if not validate_contact_data(data):
         return jsonify({"message": "Invalid JSON body"}), 400
-
-    required_fields = ("firstName", "lastName", "email")
-    if not all(field in data for field in required_fields):
-        return jsonify({"message": "Missing required fields"}), 400
 
     contact = Contact(
         first_name=data["firstName"],
@@ -51,7 +53,7 @@ def contact_by_id(id):
 
     if request.method == "PUT":
         data = request.get_json()
-        if not data:
+        if not  validate_contact_data(data):
             return jsonify({"message": "Invalid JSON body"}), 400
 
         contact.first_name = data.get("firstName", contact.first_name)
