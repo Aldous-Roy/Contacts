@@ -2,6 +2,10 @@ from flask import request,jsonify
 from config import app,db
 from model import Contact
 
+@app.route("/",methods=["GET"])
+def test_server():
+    return("server is running in port 8000")
+
 @app.route("/contacts",methods=["GET"])
 def get_contacts():
     contacts=Contact.query.all()
@@ -26,7 +30,7 @@ def update_contact(id):
     contact.last_name=request.json.get("lastName")
     contact.email=request.json.get("email")
     db.session.commit()
-    return jsonify(contact.to_json())
+    return jsonify(contact.to_json()),200
 
 @app.route("/contacts/<int:id>",methods=["DELETE"])
 def delete_contact(id):
@@ -40,4 +44,4 @@ def delete_contact(id):
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=False)
